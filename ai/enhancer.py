@@ -17,7 +17,7 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# ── Shared Llama instance (loaded once) ──────────────────────────────────────
+
 _llama_instance = None
 
 
@@ -66,19 +66,19 @@ def _parse_agent2_response(response: str) -> dict:
         "pdf_summary": "",
     }
 
-    # FINAL_VERDICT
+
     m = re.search(r"FINAL_VERDICT:\s*(PASS|WARNING|FAIL)", response, re.IGNORECASE)
     if m:
         result["final_verdict"] = m.group(1).upper()
 
-    # REMOVE_COLORS
+
     m = re.search(r"REMOVE_COLORS:\s*(.+)", response, re.IGNORECASE)
     if m:
         val = m.group(1).strip()
         if val.lower() != "none":
             result["remove_colors"] = [c.strip() for c in val.split(",") if c.strip()]
 
-    # SCALE_FACTOR
+
     m = re.search(r"SCALE_FACTOR:\s*([0-9.]+)", response, re.IGNORECASE)
     if m:
         try:
@@ -86,7 +86,7 @@ def _parse_agent2_response(response: str) -> dict:
         except ValueError:
             pass
 
-    # PDF_SUMMARY — everything after PDF_SUMMARY: tag
+
     m = re.search(r"PDF_SUMMARY:\s*\n?([\s\S]+)", response, re.IGNORECASE)
     if m:
         result["pdf_summary"] = m.group(1).strip()
@@ -104,13 +104,13 @@ def run_local_ai_orchestrator(ctx) -> dict | None:
     log.info("AI Audit: starting two-agent pipeline")
 
     try:
-        # ── Prepare preview image ─────────────────────────────────────────────
+
         temp_dir = os.path.join(os.getcwd(), "temp")
         os.makedirs(temp_dir, exist_ok=True)
         temp_preview_path = os.path.join(temp_dir, "ai_preview.png")
 
-        # Prefer repaired_image (original colors/lighting) over quantized
-        # so agents see realistic brightness, saturation, white balance
+
+
         source_arr = ctx.repaired_image if ctx.repaired_image is not None else ctx.quantized_image
         if source_arr is not None:
             img = Image.fromarray(source_arr)
@@ -122,12 +122,12 @@ def run_local_ai_orchestrator(ctx) -> dict | None:
             log.warning("AI Audit: no source image, skipping")
             return None
 
-        # ── Agent 2 Vision: extract image metrics via PIL ─────────────────────
+
         ctx.report_progress(13, "AI Audit: Step 1/2 — Vision extracting image metrics...")
         vision = VisionAgent()
         image_metrics = vision.analyze_image(temp_preview_path)
 
-        # ── Agent 1: DataCritic — analyze numbers ─────────────────────────────
+
         ctx.report_progress(13, "AI Audit: Step 1/2 — Data Critic analyzing thread data...")
         critic_prompt = build_critic_prompt(
             thread_usage=ctx.thread_usage,
@@ -139,7 +139,7 @@ def run_local_ai_orchestrator(ctx) -> dict | None:
         critic_report = _llm_call(CRITIC_SYSTEM_PROMPT, critic_prompt, max_tokens=400)
         log.info("AI Audit: Agent 1 complete.\n%s", critic_report)
 
-        # ── Agent 2: VisionAnalyst — final optimization ───────────────────────
+
         ctx.report_progress(13, "AI Audit: Step 2/2 — Vision Analyst optimizing...")
         vision_prompt = build_vision_prompt(
             image_metrics=image_metrics,
@@ -150,14 +150,14 @@ def run_local_ai_orchestrator(ctx) -> dict | None:
         vision_report = _llm_call(VISION_SYSTEM_PROMPT, vision_prompt, max_tokens=512)
         log.info("AI Audit: Agent 2 complete.\n%s", vision_report)
 
-        # ── Parse Agent 2 response ────────────────────────────────────────────
+
         parsed = _parse_agent2_response(vision_report)
         log.info(
             "AI Audit: verdict=%s remove=%s scale=%.2f",
             parsed["final_verdict"], parsed["remove_colors"], parsed["scale_factor"]
         )
 
-        # ── Apply scale factor to thread usage if needed ──────────────────────
+
         scale = parsed["scale_factor"]
         optimized_usage = {}
         for code, color in ctx.thread_usage.items():
@@ -180,7 +180,7 @@ def run_local_ai_orchestrator(ctx) -> dict | None:
             else:
                 optimized_usage[code] = color
 
-        # ── Store results in context ──────────────────────────────────────────
+
         ctx.thread_usage = optimized_usage
         ctx.ai_suggestions = {
             "verdict": parsed["final_verdict"],

@@ -3,7 +3,7 @@ import json, os
 
 OUT = os.path.dirname(__file__)
 
-# ── DMC PALETTE ─────────────────────────────────────────────────────────────
+
 DMC = [
   {"code":"Blanc","name":"White","rgb":[252,251,248]},
   {"code":"Ecru","name":"Ecru","rgb":[240,234,218]},
@@ -491,7 +491,7 @@ DMC = [
   {"code":"3866","name":"Mocha Brn Ult Vy Lt","rgb":[250,246,240]},
 ]
 
-# ── ANCHOR PALETTE (representative 120 colors) ──────────────────────────────
+
 ANCHOR = [
   {"code":"1","name":"White","rgb":[255,255,255]},
   {"code":"2","name":"White","rgb":[252,251,248]},
@@ -622,7 +622,7 @@ ANCHOR = [
   {"code":"403","name":"Black","rgb":[10,10,10]},
 ]
 
-# ── GAMMA PALETTE (Russian brand, representative 80 colors) ─────────────────
+
 GAMMA = [
   {"code":"01","name":"White","rgb":[255,255,255]},
   {"code":"02","name":"Ivory","rgb":[255,253,240]},
@@ -706,7 +706,7 @@ GAMMA = [
   {"code":"80","name":"Silver Gray","rgb":[200,200,205]},
 ]
 
-# ── ПНК им. Кирова (Russian, representative 60 colors) ──────────────────────
+
 PNK = [
   {"code":"Б","name":"White","rgb":[255,255,255]},
   {"code":"1001","name":"Ivory","rgb":[255,252,235]},
@@ -770,7 +770,7 @@ PNK = [
   {"code":"З","name":"Gold","rgb":[212,172,42]},
 ]
 
-# ── MADEIRA (representative 70 colors) ──────────────────────────────────────
+
 MADEIRA = [
   {"code":"0101","name":"White","rgb":[255,255,255]},
   {"code":"0102","name":"Ecru","rgb":[240,233,215]},
@@ -844,7 +844,7 @@ MADEIRA = [
   {"code":"0108","name":"Pearl","rgb":[235,230,228]},
 ]
 
-# ── COSMO (Lecien, Japan — representative 60 colors) ────────────────────────
+
 COSMO = [
   {"code":"100","name":"White","rgb":[255,255,255]},
   {"code":"101","name":"Snow White","rgb":[252,251,246]},
@@ -908,7 +908,7 @@ COSMO = [
   {"code":"810","name":"Ecru Natural","rgb":[238,228,205]},
 ]
 
-# ── SULKY (40 representative colors) ────────────────────────────────────────
+
 SULKY = [
   {"code":"1001","name":"Bright White","rgb":[255,255,255]},
   {"code":"1002","name":"Natural White","rgb":[252,248,235]},
@@ -952,7 +952,7 @@ SULKY = [
   {"code":"1190","name":"Dark Gray","rgb":[118,118,118]},
 ]
 
-# ── J&P COATS (40 representative colors) ────────────────────────────────────
+
 JP_COATS = [
   {"code":"1","name":"White","rgb":[255,255,255]},
   {"code":"2","name":"Ecru","rgb":[240,232,215]},
@@ -996,7 +996,7 @@ JP_COATS = [
   {"code":"415","name":"Pearl Gray","rgb":[210,210,212]},
 ]
 
-# ── BUCILLA (35 representative colors) ──────────────────────────────────────
+
 BUCILLA = [
   {"code":"200","name":"White","rgb":[255,255,255]},
   {"code":"201","name":"Ecru","rgb":[240,232,215]},
@@ -1035,7 +1035,7 @@ BUCILLA = [
   {"code":"355","name":"Black","rgb":[0,0,0]},
 ]
 
-# ── DIMENSIONS (35 representative colors) ───────────────────────────────────
+
 DIMENSIONS = [
   {"code":"blanc","name":"White","rgb":[255,255,255]},
   {"code":"ecru","name":"Ecru","rgb":[240,232,215]},
@@ -1074,7 +1074,7 @@ DIMENSIONS = [
   {"code":"d-3371","name":"Black Brown","rgb":[30,17,8]},
 ]
 
-# ── BUILD palettes.json ──────────────────────────────────────────────────────
+
 palettes = {
     "brands": {
         "DMC":       {"name": "DMC",                 "colors": DMC},
@@ -1094,11 +1094,11 @@ with open(os.path.join(OUT, "palettes.json"), "w", encoding="utf-8") as f:
     json.dump(palettes, f, ensure_ascii=False, indent=2)
 print(f"palettes.json: {sum(len(v['colors']) for v in palettes['brands'].values())} total colors")
 
-# ── SYMBOLS (50 visually distinct, print-safe) ──────────────────────────────
-# Selected following professional cross-stitch software standards (PCStitch/WinStitch):
-# - No visually similar pairs: O/0, I/l/1, S/5, Z/2
-# - Good contrast on white and color backgrounds
-# - Printable in B&W at small sizes (grid cells)
+
+
+
+
+
 symbols_data = {
     "symbols": [
         {"id": 1,  "char": "A", "category": "letter"},
@@ -1159,7 +1159,7 @@ with open(os.path.join(OUT, "symbols.json"), "w", encoding="utf-8") as f:
     json.dump(symbols_data, f, ensure_ascii=False, indent=2)
 print(f"symbols.json: {len(symbols_data['symbols'])} symbols")
 
-# ── THEMES (6 themes for CustomTkinter) ─────────────────────────────────────
+
 themes_data = {
     "themes": {
         "dark_blue": {
@@ -1260,7 +1260,7 @@ with open(os.path.join(OUT, "themes.json"), "w", encoding="utf-8") as f:
     json.dump(themes_data, f, ensure_ascii=False, indent=2)
 print(f"themes.json: {len(themes_data['themes'])} themes")
 
-# ── LOCALES (EN / RU / UA) ───────────────────────────────────────────────────
+
 locales_data = {
     "en": {
         "app_title": "Cross-Stitch Pattern Generator",

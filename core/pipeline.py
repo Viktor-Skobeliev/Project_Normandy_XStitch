@@ -22,7 +22,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
     log.info("Pipeline START — image: %s", image_path)
     t0 = time.perf_counter()
 
-    # ── STEP 1: Validation + Memory Guard ────────────────────────────────────
+
     log.info("Pipeline [1/13] Validation...")
     ctx.report_progress(1, "Validating image and checking memory...")
     with analytics.step("step1_validate") as timer:
@@ -31,7 +31,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.original_image = img
     analytics.record("step1_validate", timer.elapsed)
 
-    # ── STEP 2: Auto-Repair ───────────────────────────────────────────────────
+
     log.info("Pipeline [2/13] Auto-repair...")
     with analytics.step("step2_repair") as timer:
         from core.repair import auto_repair
@@ -39,7 +39,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.repaired_image = repaired
     analytics.record("step2_repair", timer.elapsed)
 
-    # ── STEP 3: Auto-Segment ──────────────────────────────────────────────────
+
     log.info("Pipeline [3/13] Auto-segment...")
     with analytics.step("step3_segment") as timer:
         from core.segment import auto_segment
@@ -47,7 +47,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.segmented_image = segmented
     analytics.record("step3_segment", timer.elapsed)
 
-    # ── STEP 4: Resize to grid ────────────────────────────────────────────────
+
     log.info("Pipeline [4/13] Resize to grid...")
     with analytics.step("step4_resize") as timer:
         from core.quantizer import resize_to_grid
@@ -55,7 +55,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.resized_image = resized
     analytics.record("step4_resize", timer.elapsed)
 
-    # ── STEP 5: Smart Quantize ────────────────────────────────────────────────
+
     log.info("Pipeline [5/13] Color quantization...")
     with analytics.step("step5_quantize") as timer:
         from core.quantizer import quantize_colors, apply_dithering
@@ -70,7 +70,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.quantized_image = quantized
     analytics.record("step5_quantize", timer.elapsed)
 
-    # ── STEP 6: Palette mapping ───────────────────────────────────────────────
+
     log.info("Pipeline [6/13] Palette mapping...")
     ctx.report_progress(6, "Mapping colors to thread palette...")
     with analytics.step("step6_palette") as timer:
@@ -80,7 +80,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         )
     analytics.record("step6_palette", timer.elapsed)
 
-    # ── STEP 7: Confetti cleanup ──────────────────────────────────────────────
+
     log.info("Pipeline [7/13] Confetti cleanup...")
     ctx.report_progress(7, "Cleaning confetti pixels...")
     with analytics.step("step7_confetti") as timer:
@@ -96,13 +96,13 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         cc_module.MIN_ISLAND_SIZE = original_threshold
     analytics.record("step7_confetti", timer.elapsed)
 
-    # ── STEP 8: Path optimization ─────────────────────────────────────────────
+
     log.info("Pipeline [8/13] Path optimization...")
     ctx.report_progress(8, "Optimizing stitch paths...")
     with analytics.step("step8_paths") as timer:
         from core.path_optimizer import optimize_paths
         
-        # Подготовка карты цветов для генерации матрицы
+
         color_to_id = {}
         for ci, color in enumerate(palette_colors):
             r, g, b = color.rgb
@@ -112,7 +112,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         paths = optimize_paths(ctx, stitch_matrix_temp)
     analytics.record("step8_paths", timer.elapsed)
 
-    # ── STEP 9: Grid + Symbol generation ─────────────────────────────────────
+
     log.info("Pipeline [9/13] Grid + symbol generation...")
     ctx.report_progress(9, "Generating stitch grid and symbols...")
     with analytics.step("step9_grid") as timer:
@@ -122,18 +122,18 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.symbol_map = symbol_map
     analytics.record("step9_grid", timer.elapsed)
 
-    # ── STEP 10: Thread usage ─────────────────────────────────────────────────
+
     log.info("Pipeline [10/13] Thread usage calculation...")
     ctx.report_progress(10, "Calculating thread usage...")
     with analytics.step("step10_threads") as timer:
         from core.thread_calculator import calculate_thread_usage
-        # Используем сохраненную в контексте карту ID цветов
+
         thread_usage = calculate_thread_usage(
             ctx, stitch_matrix, palette_colors, ctx.color_id_map
         )
     analytics.record("step10_threads", timer.elapsed)
 
-    # ── STEP 11: Page tiling ──────────────────────────────────────────────────
+
     log.info("Pipeline [11/13] Page tiling...")
     with analytics.step("step11_tiling") as timer:
         from core.page_tiler import tile_pages
@@ -142,7 +142,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         ctx.metadata.settings["tiles_count"] = len(tiles)
     analytics.record("step11_tiling", timer.elapsed)
 
-    # ── STEP 12: Prepare export ───────────────────────────────────────────────
+
     log.info("Pipeline [12/13] Preparing export data...")
     ctx.report_progress(12, "Preparing export data...")
     ctx.metadata.settings.update({
@@ -154,7 +154,7 @@ def run_pipeline(ctx: ProcessingContext, image_path: str) -> ProcessingContext:
         "pipeline_time_s": round(time.perf_counter() - t0, 2),
     })
 
-    # ── STEP 13: AI audit ─────────────────────────────────────────────────────
+
     log.info("Pipeline [13/13] AI Audit...")
     with analytics.step("step13_ai") as timer:
         try:
@@ -195,7 +195,7 @@ def _bgr_to_matrix(bgr_img, color_to_id: dict) -> list:
     h, w = bgr_img.shape[:2]
     pixels = bgr_img.reshape(-1, 3)
 
-    # Упаковка BGR в одно число для быстрого поиска
+
     packed_map = {
         b + g * 256 + r * 65536: cid
         for (b, g, r), cid in color_to_id.items()
@@ -205,6 +205,6 @@ def _bgr_to_matrix(bgr_img, color_to_id: dict) -> list:
               + pixels[:, 1].astype(np.int64) * 256
               + pixels[:, 2].astype(np.int64) * 65536)
 
-    # Если цвет не найден, ставим ID 1 (обычно фон)
+
     ids = np.array([packed_map.get(int(p), 1) for p in packed], dtype=np.int32)
     return ids.reshape(h, w).tolist()

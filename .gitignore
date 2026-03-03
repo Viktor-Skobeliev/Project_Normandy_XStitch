@@ -13,7 +13,8 @@ dist/
 *.spec
 
 
-models/
+models/*
+!models/.gitkeep
 
 
 temp/

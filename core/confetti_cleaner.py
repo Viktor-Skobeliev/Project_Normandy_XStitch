@@ -36,7 +36,7 @@ def clean_confetti(
     result = mapped_bgr.copy()
     h, w = result.shape[:2]
 
-    # Build color ID map: unique BGR -> id
+
     unique_bgr, inverse = _get_unique_colors(result)
     color_map = inverse.reshape(h, w)  # (H, W) each pixel = color index
 
@@ -48,7 +48,7 @@ def clean_confetti(
     for color_idx in range(len(unique_bgr)):
         mask = (color_map == color_idx).astype(np.uint8)
 
-        # Connected component analysis
+
         num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(
             mask, connectivity=8
         )
@@ -61,7 +61,7 @@ def clean_confetti(
             total_found += 1
             island_mask = (labels == label)
 
-            # Find neighboring color
+
             neighbor_color_idx = _get_dominant_neighbor_color(
                 color_map, island_mask, color_idx
             )
@@ -69,19 +69,19 @@ def clean_confetti(
             if neighbor_color_idx is None:
                 continue
 
-            # Check Delta-E between island color and neighbor
+
             island_bgr = unique_bgr[color_idx]
             neighbor_bgr = unique_bgr[neighbor_color_idx]
             de = _bgr_delta_e(island_bgr, neighbor_bgr)
 
             if de < DELTA_E_SAFE_MERGE:
-                # Safe to merge: replace island pixels with neighbor color
+
                 result[island_mask] = neighbor_bgr
                 color_map[island_mask] = neighbor_color_idx
                 total_merged += 1
             else:
-                # Contrasting — remove by setting to neighbor anyway
-                # (for print clarity — stray pixels are unstitchable)
+
+
                 result[island_mask] = neighbor_bgr
                 color_map[island_mask] = neighbor_color_idx
                 total_removed += 1
@@ -97,12 +97,12 @@ def clean_confetti(
     return result
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _get_unique_colors(img: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Return (unique_bgr array, inverse index per pixel)."""
     pixels = img.reshape(-1, 3)
-    # Pack BGR into single int32 for uniqueness check
+
     packed = (pixels[:, 0].astype(np.int32)
               + pixels[:, 1].astype(np.int32) * 256
               + pixels[:, 2].astype(np.int32) * 65536)
@@ -147,7 +147,7 @@ def _bgr_delta_e(bgr1: np.ndarray, bgr2: np.ndarray) -> float:
     img2 = np.array([[bgr2]], dtype=np.uint8)
     lab1 = cv2.cvtColor(img1, cv2.COLOR_BGR2LAB).astype(np.float32)[0, 0]
     lab2 = cv2.cvtColor(img2, cv2.COLOR_BGR2LAB).astype(np.float32)[0, 0]
-    # Scale to CIE range
+
     l1, a1, b1 = lab1[0] * 100 / 255, lab1[1] - 128, lab1[2] - 128
     l2, a2, b2 = lab2[0] * 100 / 255, lab2[1] - 128, lab2[2] - 128
     return float(np.sqrt((l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2))

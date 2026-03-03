@@ -35,22 +35,22 @@ class NavigationController:
         self._locales = _load_locales()
         self._lang = get("language", "en")
         self._current_frame: ctk.CTkFrame | None = None
-        # Проверяем, установлен ли язык. Если нет — считаем это первым запуском.
+
         self._first_launch = get("language") is None
 
     def _loc(self) -> dict:
         return self._locales.get(self._lang, self._locales["en"])
 
     def start(self) -> None:
-        # LOCAL MODE: Больше не вызываем _show_api_key
+
         if self._first_launch:
             self._show_language(self._on_language_selected)
         else:
             self._show_main()
 
-    # ── Screen transitions ────────────────────────────────────────────────────
 
-    # Метод _show_api_key удален за ненадобностью в локальном режиме
+
+
 
     def _show_language(self, callback) -> None:
         self._clear()
@@ -89,7 +89,7 @@ class NavigationController:
 
         SettingsScreen(self._root, loc=self._loc(), on_save=on_save)
 
-    # ── Callbacks ─────────────────────────────────────────────────────────────
+
 
     def _on_language_selected(self, lang: str) -> None:
         self._lang = lang
@@ -97,7 +97,7 @@ class NavigationController:
         log.info("Language selected: %s", lang)
         self._show_main()
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+
 
     def _clear(self) -> None:
         if self._current_frame:

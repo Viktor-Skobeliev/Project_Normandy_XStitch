@@ -39,14 +39,14 @@ class ApiKeyScreen(ctk.CTkFrame):
         center.grid(row=0, column=0)
         center.grid_columnconfigure(0, weight=1)
 
-        # Title
+
         ctk.CTkLabel(
             center,
             text=loc.get("title", "Welcome"),
             font=ctk.CTkFont(size=26, weight="bold"),
         ).grid(row=0, column=0, pady=(40, 8), padx=50)
 
-        # Subtitle
+
         ctk.CTkLabel(
             center,
             text=loc.get("subtitle", "Enter your Claude API key to get started"),
@@ -55,7 +55,7 @@ class ApiKeyScreen(ctk.CTkFrame):
             wraplength=380,
         ).grid(row=1, column=0, pady=(0, 24), padx=50)
 
-        # Key entry
+
         self._entry = ctk.CTkEntry(
             center,
             placeholder_text=loc.get("placeholder", "sk-ant-..."),
@@ -66,7 +66,7 @@ class ApiKeyScreen(ctk.CTkFrame):
         )
         self._entry.grid(row=2, column=0, padx=50, pady=(0, 8))
 
-        # Show/hide toggle
+
         self._show_var = ctk.BooleanVar(value=False)
         ctk.CTkCheckBox(
             center,
@@ -76,7 +76,7 @@ class ApiKeyScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=11),
         ).grid(row=3, column=0, padx=50, sticky="w", pady=(0, 16))
 
-        # Error label (hidden)
+
         self._error_label = ctk.CTkLabel(
             center,
             text="",
@@ -85,14 +85,14 @@ class ApiKeyScreen(ctk.CTkFrame):
         )
         self._error_label.grid(row=4, column=0, padx=50)
 
-        # Status label
+
         self._status_label = ctk.CTkLabel(
             center, text="", font=ctk.CTkFont(size=11),
             text_color=("gray40", "gray60"),
         )
         self._status_label.grid(row=5, column=0, padx=50)
 
-        # Confirm button
+
         self._btn_confirm = ctk.CTkButton(
             center,
             text=loc.get("btn_confirm", "Confirm"),
@@ -104,7 +104,7 @@ class ApiKeyScreen(ctk.CTkFrame):
         )
         self._btn_confirm.grid(row=6, column=0, padx=50, pady=(12, 8))
 
-        # Skip button
+
         ctk.CTkButton(
             center,
             text=loc.get("btn_skip", "Skip AI features"),
@@ -134,7 +134,7 @@ class ApiKeyScreen(ctk.CTkFrame):
         self._status_label.configure(text=loc.get("checking", "Checking key..."))
         self._btn_confirm.configure(state="disabled")
 
-        # Validate key asynchronously
+
         self.after(50, lambda: self._validate_key(key))
 
     def _validate_key(self, key: str) -> None:

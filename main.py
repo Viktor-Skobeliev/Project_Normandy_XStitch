@@ -6,7 +6,7 @@ import asyncio
 import os
 import sys
 
-# Ensure project root is on path (needed when running as .exe)
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from utils.logger import get_logger
@@ -24,7 +24,7 @@ def main() -> None:
     import customtkinter as ctk
     from ui.navigation_controller import NavigationController
 
-    # High-DPI awareness (Windows 11)
+
     try:
         from ctypes import windll
         windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
@@ -38,7 +38,7 @@ def main() -> None:
     root.title(f"{APP_NAME} v{APP_VERSION}")
     root.minsize(900, 700)
 
-    # Center window on PRIMARY monitor (handles multi-monitor setups)
+
     from utils.config import get
     w = get("window_width", 1280)
     h = get("window_height", 800)
@@ -55,7 +55,7 @@ def main() -> None:
     y = max(0, (ph - h) // 2)
     root.geometry(f"{w}x{h}+{x}+{y}")
 
-    # Save window size on close
+
     def on_close():
         from utils.config import set as cfg_set
         cfg_set("window_width", root.winfo_width())

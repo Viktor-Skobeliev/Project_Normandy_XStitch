@@ -10,10 +10,10 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# Standard DMC/most brands: 1 skein = 8 meters
+
 METERS_PER_SKEIN = 8.0
 
-# Average thread used per stitch depends on canvas count (cm per stitch)
+
 _THREAD_CM_PER_STITCH: Dict[int, float] = {
     14: 4.5,   # ~4.5 cm per stitch on 14-count canvas
     16: 4.0,
@@ -39,7 +39,7 @@ def calculate_thread_usage(
 
     matrix = np.array(stitch_matrix, dtype=np.int32)
 
-    # Count stitches per color ID
+
     stitch_counts: Dict[int, int] = {}
     unique_ids, counts = np.unique(matrix, return_counts=True)
     
@@ -48,7 +48,7 @@ def calculate_thread_usage(
     for cid, cnt in zip(unique_ids, counts):
         cid_int = int(cid)
         
-        # FIX: Ignore background ID (0) and any ID not in the palette
+
         if cid_int == 0 or cid_int not in color_id_map:
             total_background_pixels += int(cnt)
             continue

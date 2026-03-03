@@ -6,7 +6,7 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# Priority order: TensorRT > CUDA > CPU
+
 _PROVIDER_PRIORITY = [
     "TensorrtExecutionProvider",
     "CUDAExecutionProvider",

@@ -57,10 +57,10 @@ def map_to_palette(
     log.info("Palette mapper: brand=%s, %d colors available, %d clusters",
              brand_key, len(brand_colors), len(palette_lab))
 
-    # ── Convert brand palette to LAB ─────────────────────────────────────────
+
     brand_lab = _brand_to_lab(brand_colors)  # (M, 3)
 
-    # ── Match each cluster center to nearest brand color ──────────────────────
+
     cluster_to_color: Dict[int, ThreadColor] = {}
     cluster_to_id: Dict[int, int] = {}
     used_colors: List[ThreadColor] = []
@@ -90,22 +90,22 @@ def map_to_palette(
         cluster_to_color[cluster_idx] = color
         cluster_to_id[cluster_idx] = color_id
 
-    # ── Rebuild image with exact brand RGB values ─────────────────────────────
+
     h, w = quantized_bgr.shape[:2]
     orig_lab = cv2.cvtColor(quantized_bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
     pixels = orig_lab.reshape(-1, 3)
 
-    # For each pixel, find nearest cluster center, then map to brand color
+
     mapped_pixels = np.zeros((pixels.shape[0], 3), dtype=np.uint8)
     for cluster_idx, color in cluster_to_color.items():
-        # Find pixels belonging to this cluster
+
         center = palette_lab[cluster_idx]
         diffs = np.sum((pixels - center) ** 2, axis=1)
 
-        # Assign on first pass using nearest center
+
         pass  # handled below
 
-    # Efficient batch assignment
+
     dists = np.linalg.norm(pixels[:, None, :] - palette_lab[None, :, :], axis=2)  # (P, K)
     nearest_clusters = np.argmin(dists, axis=1)
 
@@ -116,7 +116,7 @@ def map_to_palette(
 
     mapped_bgr = mapped_pixels.reshape(h, w, 3)
 
-    # ── Color stats ───────────────────────────────────────────────────────────
+
     total_pixels = h * w
     distribution: Dict[str, float] = {}
     for cluster_idx in range(len(palette_lab)):
@@ -141,7 +141,7 @@ def map_to_palette(
     return mapped_bgr, used_colors, cluster_to_id
 
 
-# ── Delta-E 2000 implementation ───────────────────────────────────────────────
+
 
 import cv2
 
@@ -150,7 +150,7 @@ def _brand_to_lab(brand_colors: list) -> np.ndarray:
     """Convert brand RGB list to OpenCV LAB values (uint8 scale)."""
     rgbs = np.array([[c["rgb"][0], c["rgb"][1], c["rgb"][2]]
                      for c in brand_colors], dtype=np.uint8)
-    # BGR for OpenCV
+
     bgr = rgbs[:, ::-1].reshape(1, -1, 3)
     lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
     return lab
@@ -158,7 +158,7 @@ def _brand_to_lab(brand_colors: list) -> np.ndarray:
 
 def _nearest_delta_e2000(lab_pixel: np.ndarray, brand_lab: np.ndarray) -> int:
     """Find index of nearest brand color using Delta-E 2000."""
-    # Use vectorized CIE DE2000 approximation
+
     scores = _delta_e2000_batch(lab_pixel, brand_lab)
     return int(np.argmin(scores))
 
@@ -169,7 +169,7 @@ def _delta_e2000_batch(lab1: np.ndarray, lab2: np.ndarray) -> np.ndarray:
     array lab2 (shape N,3). OpenCV LAB scale: L in [0,255], a,b in [0,255].
     We convert to standard CIE scale first.
     """
-    # OpenCV LAB -> CIE LAB
+
     def to_cie(lab):
         L = lab[..., 0] * (100.0 / 255.0)
         a = lab[..., 1] - 128.0
@@ -179,12 +179,12 @@ def _delta_e2000_batch(lab1: np.ndarray, lab2: np.ndarray) -> np.ndarray:
     L1, a1, b1 = to_cie(lab1)
     L2, a2, b2 = to_cie(lab2)
 
-    # C (chroma)
+
     C1 = np.sqrt(a1 ** 2 + b1 ** 2)
     C2 = np.sqrt(a2 ** 2 + b2 ** 2)
     C_avg = (C1 + C2) / 2.0
 
-    # a' adjustment
+
     C_avg7 = C_avg ** 7
     G = 0.5 * (1 - np.sqrt(C_avg7 / (C_avg7 + 25 ** 7)))
     a1p = a1 * (1 + G)
@@ -199,13 +199,13 @@ def _delta_e2000_batch(lab1: np.ndarray, lab2: np.ndarray) -> np.ndarray:
     dLp = L2 - L1
     dCp = C2p - C1p
 
-    # dH'
+
     dhp = h2p - h1p
     dhp = np.where(np.abs(dhp) <= 180, dhp,
                    np.where(dhp > 180, dhp - 360, dhp + 360))
     dHp = 2 * np.sqrt(C1p * C2p) * np.sin(np.radians(dhp) / 2)
 
-    # Averages
+
     Lp_avg = (L1 + L2) / 2.0
     Cp_avg = (C1p + C2p) / 2.0
     Hp_avg = h1p + h2p

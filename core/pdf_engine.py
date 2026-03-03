@@ -31,7 +31,7 @@ COL_VERDICT_PASS = colors.HexColor("#4CAF50")
 COL_VERDICT_WARN = colors.HexColor("#FFC107")
 COL_VERDICT_FAIL = colors.HexColor("#f44336")
 
-# Сетка 10x10
+
 COL_GRID_MAJOR = colors.HexColor("#333333")  # жирная линия каждые 10
 COL_GRID_MINOR = colors.HexColor("#bbbbbb")  # тонкая линия каждую клетку
 
@@ -257,7 +257,7 @@ class PDFEngine:
         if img_data:
             c.drawImage(img_data, ox, oy, width=draw_w, height=draw_h)
 
-        # ── Мелкая сетка (каждая клетка) ─────────────────────────────────────
+
         c.setStrokeColor(COL_GRID_MINOR)
         c.setLineWidth(0.3)
         for i in range(cols + 1):
@@ -267,7 +267,7 @@ class PDFEngine:
             yr = oy + i * cell
             c.line(ox, yr, ox + draw_w, yr)
 
-        # ── Жирная сетка 10×10 ────────────────────────────────────────────────
+
         c.setStrokeColor(COL_GRID_MAJOR)
         c.setLineWidth(1.2)
         for i in range(0, cols + 1, 10):
@@ -277,12 +277,12 @@ class PDFEngine:
             yr = oy + i * cell
             c.line(ox, yr, ox + draw_w, yr)
 
-        # ── Рамка ─────────────────────────────────────────────────────────────
+
         c.setStrokeColor(colors.HexColor("#333333"))
         c.setLineWidth(1.5)
         c.rect(ox, oy, draw_w, draw_h, fill=0, stroke=1)
 
-        # ── Rulers на всех 4 сторонах ─────────────────────────────────────────
+
         c.setFont("Helvetica-Bold", 6)
         c.setFillColor(colors.HexColor("#333333"))
         for i in range(0, cols + 1, 10):
@@ -361,7 +361,7 @@ class PDFEngine:
         if img_data:
             c.drawImage(img_data, ox, oy, width=draw_w, height=draw_h)
 
-        # ── Мелкая сетка (каждая клетка) ─────────────────────────────────────
+
         c.setStrokeColor(COL_GRID_MINOR)
         c.setLineWidth(0.3)
         for i in range(tile.width + 1):
@@ -371,8 +371,8 @@ class PDFEngine:
             yr = oy + i * cell
             c.line(ox, yr, ox + draw_w, yr)
 
-        # ── Жирная сетка 10×10 ────────────────────────────────────────────────
-        # Учитываем смещение тайла — жирная линия там, где глобальный номер кратен 10
+
+
         c.setStrokeColor(COL_GRID_MAJOR)
         c.setLineWidth(1.5)
         for i in range(tile.width + 1):
@@ -386,12 +386,12 @@ class PDFEngine:
                 yr = oy + i * cell
                 c.line(ox, yr, ox + draw_w, yr)
 
-        # ── Рамка ─────────────────────────────────────────────────────────────
+
         c.setStrokeColor(colors.HexColor("#333333"))
         c.setLineWidth(1.5)
         c.rect(ox, oy, draw_w, draw_h, fill=0, stroke=1)
 
-        # ── Rulers на всех 4 сторонах ─────────────────────────────────────────
+
         c.setFont("Helvetica-Bold", 6)
         c.setFillColor(colors.HexColor("#333333"))
         for i in range(0, tile.width + 1, 10):
@@ -405,7 +405,7 @@ class PDFEngine:
             c.drawRightString(ox - 3, yr - 3, label)         # слева
             c.drawString(ox + draw_w + 3, yr - 3, label)     # справа
 
-        # ── Легенда ───────────────────────────────────────────────────────────
+
         used_ids = set()
         for row in tile_matrix:
             for cid in row:

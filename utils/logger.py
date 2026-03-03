@@ -30,12 +30,12 @@ def _setup() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # Rotating file handler — max 5 MB, keep 3 backups
+
     fh = RotatingFileHandler(_LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8")
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(fmt)
 
-    # Console handler — INFO and above
+
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(fmt)

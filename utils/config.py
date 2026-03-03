@@ -36,7 +36,7 @@ def _load() -> Dict[str, Any]:
     try:
         with open(_CONFIG_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-        # Merge with defaults to handle missing keys from older versions
+
         merged = dict(_DEFAULTS)
         merged.update(data)
         return merged
@@ -54,7 +54,7 @@ def _save(cfg: Dict[str, Any]) -> None:
         log.error("Failed to save config: %s", e)
 
 
-# ── Public API ──────────────────────────────────────────────────────────────
+
 
 _cache: Optional[Dict[str, Any]] = None
 

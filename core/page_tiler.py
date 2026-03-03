@@ -10,9 +10,9 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# A4 at 300 DPI = 2480 x 3508 px
-# At typical PDF rendering: grid cell = ~10pt (3.5mm)
-# On A4 (210x297mm), usable area ~180x267mm -> ~51x76 cells per page
+
+
+
 CELLS_PER_PAGE_W = 50   # stitches per page width
 CELLS_PER_PAGE_H = 70   # stitches per page height
 

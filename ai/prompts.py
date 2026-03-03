@@ -1,7 +1,7 @@
 """PROMPTS — Instructions for Local AI Agents (Llama 3.1)."""
 
 
-# ── Image type classifier (shared utility) ────────────────────────────────────
+
 
 def _classify_image(image_metrics: dict) -> str:
     brightness = image_metrics.get("mean_brightness", 128)

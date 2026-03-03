@@ -30,13 +30,13 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# Page constants
+
 PAGE_W, PAGE_H = A4
 MARGIN = 15 * mm
 CELL_SIZE = 5 * mm           # grid cell size on PDF page
 LEGEND_CELL = 6 * mm         # color swatch in legend
 
-# ── Font setup (Arial for Cyrillic support) ───────────────────────────────────
+
 FONT_R = "Helvetica"       # regular
 FONT_B = "Helvetica-Bold"  # bold
 _fonts_ok = False
@@ -98,15 +98,15 @@ def export_pdf(
 
     matrix = np.array(stitch_matrix, dtype=np.int32)
 
-    # ── 0a. Summary / cover page ──────────────────────────────────────────────
+
     _draw_summary_page(c, ctx, matrix, color_id_map, thread_usage, pdf_loc)
     c.showPage()
 
-    # ── 0b. Full pattern overview ─────────────────────────────────────────────
+
     _draw_overview_page(c, matrix, color_id_map, pdf_loc)
     c.showPage()
 
-    # ── 1. Color pattern pages ───────────────────────────────────────────────
+
     for tile in tiles:
         _draw_pattern_page(
             c, matrix, tile, color_id_map, symbol_map,
@@ -115,7 +115,7 @@ def export_pdf(
         )
         c.showPage()
 
-    # ── 2. Symbol (B&W) pattern pages ────────────────────────────────────────
+
     for tile in tiles:
         _draw_pattern_page(
             c, matrix, tile, color_id_map, symbol_map,
@@ -124,15 +124,15 @@ def export_pdf(
         )
         c.showPage()
 
-    # ── 3. Legend page ────────────────────────────────────────────────────────
+
     _draw_legend_page(c, color_id_map, symbol_map, thread_usage, pdf_loc)
     c.showPage()
 
-    # ── 4. Thread usage page ──────────────────────────────────────────────────
+
     _draw_thread_page(c, thread_usage, pdf_loc)
     c.showPage()
 
-    # ── 5. Page map ───────────────────────────────────────────────────────────
+
     _draw_page_map(c, tiles, pdf_loc)
     c.showPage()
 
@@ -140,7 +140,7 @@ def export_pdf(
     log.info("PDF saved: %s", output_path)
 
 
-# ── Summary / cover page ──────────────────────────────────────────────────────
+
 
 def _draw_summary_page(
     c: rl_canvas.Canvas,
@@ -151,7 +151,7 @@ def _draw_summary_page(
     pdf_loc: dict,
 ) -> None:
     """Cover page: project photo + stats + thread shopping list (20% buffer)."""
-    # ── Header ────────────────────────────────────────────────────────────────
+
     c.setFont(FONT_B, 20)
     c.setFillColorRGB(0.16, 0.29, 0.54)
     c.drawCentredString(PAGE_W / 2, PAGE_H - MARGIN - 8 * mm,
@@ -169,7 +169,7 @@ def _draw_summary_page(
            PAGE_W - MARGIN, PAGE_H - MARGIN - 21 * mm)
     c.setLineWidth(0.5)
 
-    # ── Photo thumbnail (left column) ─────────────────────────────────────────
+
     top_y = PAGE_H - MARGIN - 26 * mm
     photo_max_w = 75 * mm
     photo_max_h = 80 * mm
@@ -199,7 +199,7 @@ def _draw_summary_page(
         except Exception as e:
             log.warning("Summary page photo failed: %s", e)
 
-    # ── Project stats (right column) ──────────────────────────────────────────
+
     stats_x = MARGIN + max(photo_drawn_w, photo_max_w) + 8 * mm
     grid_h, grid_w = matrix.shape
     canvas_count = getattr(ctx, "canvas_count", 14)
@@ -236,7 +236,7 @@ def _draw_summary_page(
         c.setFillColorRGB(0.1, 0.1, 0.1)
         c.drawString(stats_x + 42 * mm, y, value)
 
-    # ── Thread shopping list table ─────────────────────────────────────────────
+
     table_top = top_y - photo_max_h - 10 * mm
     c.setFont(FONT_B, 11)
     c.setFillColorRGB(0, 0, 0)
@@ -290,7 +290,7 @@ def _draw_summary_page(
     tbl.drawOn(c, MARGIN, table_top - 7 * mm - len(data_rows) * 6.5 * mm)
 
 
-# ── Full overview page ─────────────────────────────────────────────────────────
+
 
 def _draw_overview_page(
     c: rl_canvas.Canvas,
@@ -311,7 +311,7 @@ def _draw_overview_page(
         mask = matrix == color_id
         img_arr[mask] = thread.rgb
 
-    # Upscale 3× so each stitch is visible at PDF zoom
+
     UPSCALE = 3
     img_arr = np.kron(img_arr, np.ones((UPSCALE, UPSCALE, 1), dtype=np.uint8))
 
@@ -342,7 +342,7 @@ def _draw_overview_page(
                         f"{w} \u00d7 {h} stitches  |  {len(color_id_map)} colors")
 
 
-# ── Pattern page ──────────────────────────────────────────────────────────────
+
 
 def _draw_pattern_page(
     c: rl_canvas.Canvas,
@@ -362,7 +362,7 @@ def _draw_pattern_page(
     rows = tile.row_end - tile.row_start
     cols = tile.col_end - tile.col_start
 
-    # Auto-fit cell size
+
     available_w = PAGE_W - 2 * MARGIN
     available_h = PAGE_H - 2 * MARGIN - 8 * mm
     cell_w = min(CELL_SIZE, available_w / cols)
@@ -381,7 +381,7 @@ def _draw_pattern_page(
             x = origin_x + c_idx * cell
             y = origin_y + (rows - 1 - r_idx) * cell  # PDF y goes up
 
-            # color_id=0 → background, leave as empty canvas
+
             if color_id == 0:
                 c.setFillColorRGB(1, 1, 1)
                 c.rect(x, y, cell, cell, fill=1, stroke=0)
@@ -397,12 +397,12 @@ def _draw_pattern_page(
                     c.setFillColorRGB(r / 255, g / 255, b / 255)
                     c.rect(x, y, cell, cell, fill=1, stroke=0)
 
-                # Grid line
+
                 c.setStrokeColorRGB(0.7, 0.7, 0.7)
                 c.setLineWidth(0.2)
                 c.rect(x, y, cell, cell, fill=0, stroke=1)
 
-                # Symbol overlay at small size
+
                 sym = symbol_map.get(color_id, "")
                 if sym:
                     font_size = max(3, cell * 0.55)
@@ -425,7 +425,7 @@ def _draw_pattern_page(
                     c.setFont(FONT_B, font_size)
                     c.drawCentredString(x + cell / 2, y + cell * 0.2, sym)
 
-    # 10-stitch ruler marks
+
     c.setFont(FONT_R, 5)
     c.setFillColorRGB(0.4, 0.4, 0.4)
     for i in range(0, cols, 10):
@@ -436,7 +436,7 @@ def _draw_pattern_page(
         c.drawRightString(origin_x - 1, yr, str(tile.row_start + i + 1))
 
 
-# ── Legend page ───────────────────────────────────────────────────────────────
+
 
 def _draw_legend_page(
     c: rl_canvas.Canvas,
@@ -491,7 +491,7 @@ def _draw_legend_page(
     t.drawOn(c, MARGIN, PAGE_H - MARGIN - 10*mm - len(data) * 7*mm)
 
 
-# ── Thread usage page ─────────────────────────────────────────────────────────
+
 
 def _draw_thread_page(
     c: rl_canvas.Canvas,
@@ -536,12 +536,12 @@ def _draw_thread_page(
     ])
     t.setStyle(style)
 
-    # Draw color swatches in "Color" column
+
     t.wrapOn(c, PAGE_W - 2 * MARGIN, PAGE_H)
     table_y = PAGE_H - MARGIN - 10*mm - len(data) * 6.5*mm
     t.drawOn(c, MARGIN, table_y)
 
-    # Draw color swatches
+
     row_h = 6.5 * mm
     swatch_x = MARGIN + 22*mm + 70*mm + 2*mm
     swatch_y = table_y + (len(data) - 1) * row_h - row_h * 0.7
@@ -552,7 +552,7 @@ def _draw_thread_page(
         c.rect(swatch_x, swatch_y - i * row_h, 16*mm, 4*mm, fill=1, stroke=1)
 
 
-# ── Page map ──────────────────────────────────────────────────────────────────
+
 
 def _draw_page_map(
     c: rl_canvas.Canvas,
@@ -570,7 +570,7 @@ def _draw_page_map(
     cell_w = min(30*mm, (PAGE_W - 2 * MARGIN) / n_cols)
     cell_h = min(20*mm, (PAGE_H - 2 * MARGIN - 15*mm) / n_rows)
 
-    # Index tiles by (grid_row, grid_col)
+
     tile_map = {(t.grid_row, t.grid_col): t for t in tiles}
 
     origin_x = MARGIN

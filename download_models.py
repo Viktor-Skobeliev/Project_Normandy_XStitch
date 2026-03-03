@@ -1,15 +1,15 @@
 import os
 from huggingface_hub import hf_hub_download
 
-# Твой путь к папке в проекте
 base_path = os.path.join(os.getcwd(), "models")
 os.makedirs(base_path, exist_ok=True)
 
 print(f"Downloading stable models to: {base_path}")
 
-# 1. Llama-3.1-8B (Логика и код) - уже должна быть у тебя, но проверим
+
+# ── Llama 3.1 8B ─────────────────────────────────────────────────────────────
 try:
-    print("Checking Llama-3.1-8B-Instruct...")
+    print("\nChecking Llama-3.1-8B-Instruct...")
     hf_hub_download(
         repo_id="bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
         filename="Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
@@ -19,10 +19,10 @@ try:
 except Exception as e:
     print(f"Llama download error: {e}")
 
-# 2. Qwen2-VL-2B-Instruct (Зрение/Vision вместо Moondream)
-# Эта модель отлично понимает графику и схемы.
+
+# ── Qwen2-VL 2B Vision ───────────────────────────────────────────────────────
 try:
-    print("Downloading Qwen2-VL-2B-Instruct-GGUF (Vision model)...")
+    print("\nDownloading Qwen2-VL-2B-Instruct-GGUF (Vision model)...")
     hf_hub_download(
         repo_id="bartowski/Qwen2-VL-2B-Instruct-GGUF",
         filename="Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
@@ -32,4 +32,32 @@ try:
 except Exception as e:
     print(f"Vision model error: {e}")
 
-print("\nSetup complete. Use these GGUF files with llama-cpp-python.")
+
+# ── MobileSAM weights ─────────────────────────────────────────────────────────
+try:
+    print("\nDownloading MobileSAM weights...")
+    hf_hub_download(
+        repo_id="dhkim2810/MobileSAM",
+        filename="mobile_sam.pt",
+        local_dir=base_path
+    )
+    print("MobileSAM is ready.")
+except Exception as e:
+    print(f"MobileSAM download error: {e}")
+
+
+# ── U2Net (rembg background removal) ─────────────────────────────────────────
+try:
+    print("\nDownloading U2Net ONNX for background removal...")
+    hf_hub_download(
+        repo_id="vishnusureshperumbavoor/u2net_onnx",
+        filename="u2net.onnx",
+        local_dir=base_path
+    )
+    print("U2Net ONNX downloaded successfully!")
+except Exception as e:
+    print(f"U2Net download error: {e}")
+
+
+print("\n✅ Setup complete.")
+print(f"Models location: {base_path}")

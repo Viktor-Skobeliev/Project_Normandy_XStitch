@@ -14,7 +14,7 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# Thresholds
+
 MAX_MEGAPIXELS = 50        # auto-downscale above this
 RAM_WARN_MB = 500          # warn if free RAM below this
 RAM_ABORT_MB = 150         # abort if free RAM below this
@@ -45,7 +45,7 @@ def validate_and_guard(ctx: ProcessingContext, filepath: str) -> np.ndarray:
     """
     ctx.report_progress(1, "Validating image and checking memory...")
 
-    # ── File checks ─────────────────────────────────────────────────────────
+
     if not os.path.exists(filepath):
         raise ImageCorruptError(f"File not found: {filepath}")
 
@@ -53,7 +53,7 @@ def validate_and_guard(ctx: ProcessingContext, filepath: str) -> np.ndarray:
     if file_mb > MAX_FILE_MB:
         raise ImageCorruptError(f"File too large: {file_mb:.1f} MB (max {MAX_FILE_MB} MB)")
 
-    # ── RAM check ────────────────────────────────────────────────────────────
+
     free_mb = _get_free_ram_mb()
     total_mb = _get_total_ram_mb()
     log.info("RAM: %.0f MB free / %.0f MB total", free_mb, total_mb)
@@ -76,10 +76,10 @@ def validate_and_guard(ctx: ProcessingContext, filepath: str) -> np.ndarray:
     )
     ctx.metadata.source_filename = os.path.basename(filepath)
 
-    # ── Load image ───────────────────────────────────────────────────────────
+
     img = cv2.imread(filepath, cv2.IMREAD_COLOR)
     if img is None:
-        # Try with PIL as fallback
+
         try:
             from PIL import Image
             pil = Image.open(filepath).convert("RGB")
@@ -91,7 +91,7 @@ def validate_and_guard(ctx: ProcessingContext, filepath: str) -> np.ndarray:
     megapixels = (h * w) / 1_000_000
     log.info("Image loaded: %dx%d (%.1f MP)", w, h, megapixels)
 
-    # ── Auto-downscale for very large images ─────────────────────────────────
+
     if megapixels > MAX_MEGAPIXELS:
         scale = (MAX_MEGAPIXELS / megapixels) ** 0.5
         new_w = int(w * scale)

@@ -17,7 +17,7 @@ log = get_logger(__name__)
 _DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 _SYMBOLS_FILE = os.path.join(_DATA_DIR, "symbols.json")
 
-# Symbols that must not appear adjacent (visually conflict pairs)
+
 _CONFLICT_PAIRS = {
     frozenset(["X", "+"]): True,
     frozenset(["X", "x"]): True,
@@ -52,10 +52,10 @@ def generate_grid(
     if len(color_to_id) == 0:
         raise GridGenerationError("No color mapping provided to grid generator.")
 
-    # ── Build stitch matrix ───────────────────────────────────────────────────
+
     stitch_matrix = _build_stitch_matrix(cleaned_bgr, color_to_id, h, w)
 
-    # ── Apply foreground mask: background cells → color_id=0 ─────────────────
+
     if ctx.fg_mask is not None:
         matrix_np = np.array(stitch_matrix, dtype=np.int32)
         bg_cells = ~ctx.fg_mask
@@ -64,7 +64,7 @@ def generate_grid(
         bg_count = int(bg_cells.sum())
         log.info("Grid: fg_mask applied — %d background cells set to 0 (no stitch)", bg_count)
 
-    # ── Assign symbols (skip color_id=0 — background has no symbol) ──────────
+
     symbols_pool = _load_symbols()
     color_ids = [cid for cid in sorted(set(color_to_id.values())) if cid != 0]
     symbol_map = _assign_symbols(color_ids, symbols_pool, stitch_matrix, w, h)
@@ -80,7 +80,7 @@ def _build_stitch_matrix(
     w: int,
 ) -> List[List[int]]:
     """Convert each pixel to its color ID."""
-    # Build lookup array: pack BGR -> id
+
     packed_map: Dict[int, int] = {
         b + g * 256 + r * 65536: cid
         for (b, g, r), cid in color_to_id.items()
@@ -122,20 +122,20 @@ def _assign_symbols(
     given already-assigned neighbors.
     """
     if len(color_ids) > len(symbols_pool):
-        # Repeat pool if needed (edge case: >50 colors)
+
         symbols_pool = (symbols_pool * ((len(color_ids) // len(symbols_pool)) + 2))
 
     symbol_map: Dict[int, str] = {}
     used_symbols: set = set()
 
-    # Build adjacency: which color IDs appear adjacent to each color ID
+
     adjacency = _compute_adjacency(stitch_matrix, color_ids, h, w)
 
     for color_id in color_ids:
         neighbor_ids = adjacency.get(color_id, set())
         neighbor_symbols = {symbol_map[nid] for nid in neighbor_ids if nid in symbol_map}
 
-        # Pick first available symbol that doesn't conflict with neighbors
+
         chosen = None
         for sym in symbols_pool:
             if sym in used_symbols:
@@ -146,7 +146,7 @@ def _assign_symbols(
             break
 
         if chosen is None:
-            # Fallback: pick any unused symbol
+
             for sym in symbols_pool:
                 if sym not in used_symbols:
                     chosen = sym
@@ -171,7 +171,7 @@ def _compute_adjacency(
     matrix = np.array(stitch_matrix, dtype=np.int32)
     adjacency: Dict[int, set] = {cid: set() for cid in color_ids}
 
-    # Check horizontal adjacency (skip background id=0)
+
     left = matrix[:, :-1]
     right = matrix[:, 1:]
     mask_h = left != right
@@ -182,7 +182,7 @@ def _compute_adjacency(
         adjacency[a].add(b)
         adjacency[b].add(a)
 
-    # Check vertical adjacency (skip background id=0)
+
     top = matrix[:-1, :]
     bottom = matrix[1:, :]
     mask_v = top != bottom

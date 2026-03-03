@@ -60,50 +60,50 @@ class ProcessingContext(BaseModel):
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    # ── Изображения на каждом этапе пайплайна ──────────────────────────────
+
     original_image: Optional[np.ndarray] = None
     repaired_image: Optional[np.ndarray] = None
     segmented_image: Optional[np.ndarray] = None
     resized_image: Optional[np.ndarray] = None
     quantized_image: Optional[np.ndarray] = None
 
-    # ── Маска переднего плана (True=стежок, False=фон/пустая клетка) ────────
-    # Сохраняется из alpha-канала u2net. None если BG removal выключен.
+
+
     fg_mask: Optional[np.ndarray] = None
 
-    # ── Схема вышивки ───────────────────────────────────────────────────────
+
     stitch_matrix: Optional[List[List[int]]] = None   # 2D array of color IDs
     symbol_map: Optional[Dict[int, str]] = None        # color_id -> symbol char
 
-    # ── Палитра и цвета ─────────────────────────────────────────────────────
+
     palette_selected: str = "DMC"
     palette_colors: List[ThreadColor] = Field(default_factory=list)  # итоговые цвета схемы
     color_id_map: Dict[int, ThreadColor] = Field(default_factory=dict)  # id -> color
 
-    # ── Статистика ──────────────────────────────────────────────────────────
+
     color_stats: Optional[ColorStats] = None
     cluster_stats: Optional[ClusterStats] = None
     confetti_report: Optional[ConfettiReport] = None
 
-    # ── Расход ниток ────────────────────────────────────────────────────────
+
     thread_usage: Dict[str, ThreadColor] = Field(default_factory=dict)
 
-    # ── AI аудит ────────────────────────────────────────────────────────────
+
     ai_suggestions: Optional[Dict[str, Any]] = None
 
-    # ── Системная информация ────────────────────────────────────────────────
+
     system_info: Optional[SystemInfo] = None
 
-    # ── Метаданные ──────────────────────────────────────────────────────────
+
     metadata: Metadata = Field(default_factory=Metadata)
 
-    # ── Состояние пайплайна ─────────────────────────────────────────────────
+
     current_step: int = 0
     errors: List[str] = Field(default_factory=list)
     warnings: List[str] = Field(default_factory=list)
     progress_callbacks: List[Any] = Field(default_factory=list, exclude=True)
 
-    # ── Настройки обработки ─────────────────────────────────────────────────
+
     target_colors: int = 30          # желаемое кол-во цветов (UI слайдер)
     canvas_count: int = 14           # стежков на дюйм (14/16/18/20)
     grid_width: int = 150            # ширина схемы в стежках

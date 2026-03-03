@@ -45,12 +45,12 @@ class SettingsScreen(ctk.CTkToplevel):
 
         row = 0
 
-        # ── Interface section ──────────────────────────────────────────────
+
         SectionLabel(scroll, loc.get("section_ui", "Interface")).grid(
             row=row, column=0, sticky="w", pady=(0, 8))
         row += 1
 
-        # Theme
+
         theme_labels = get_theme_labels()
         theme_keys = list(theme_labels.keys())
         theme_display = [theme_labels[k] for k in theme_keys]
@@ -69,7 +69,7 @@ class SettingsScreen(ctk.CTkToplevel):
         self._theme_keys = theme_keys
         self._theme_display = theme_display
 
-        # Language
+
         lang_keys = list(_LANGUAGES.keys())
         lang_display = list(_LANGUAGES.values())
         current_lang = get("language", "en")
@@ -86,17 +86,17 @@ class SettingsScreen(ctk.CTkToplevel):
         self._lang_keys = lang_keys
         self._lang_display = lang_display
 
-        # Separator
+
         ctk.CTkFrame(scroll, height=1, fg_color=("gray80", "gray30")).grid(
             row=row, column=0, sticky="ew", pady=12)
         row += 1
 
-        # ── Algorithm section ──────────────────────────────────────────────
+
         SectionLabel(scroll, loc.get("section_algorithm", "Algorithm")).grid(
             row=row, column=0, sticky="w", pady=(0, 8))
         row += 1
 
-        # Confetti threshold
+
         self._confetti_slider = LabeledSlider(
             scroll,
             label=loc.get("label_confetti_threshold", "Confetti Threshold (px)"),
@@ -106,7 +106,7 @@ class SettingsScreen(ctk.CTkToplevel):
         self._confetti_slider.grid(row=row, column=0, sticky="ew", pady=4)
         row += 1
 
-        # Background color
+
         self._bg_combo = LabeledCombo(
             scroll,
             label=loc.get("label_bg_color", "Background Color"),
@@ -116,7 +116,7 @@ class SettingsScreen(ctk.CTkToplevel):
         self._bg_combo.grid(row=row, column=0, sticky="ew", pady=4)
         row += 1
 
-        # Dithering toggle
+
         self._dither_var = ctk.BooleanVar(value=bool(get("dithering", False)))
         dither_row = ctk.CTkFrame(scroll, fg_color="transparent")
         dither_row.grid(row=row, column=0, sticky="ew", pady=4)
@@ -128,12 +128,12 @@ class SettingsScreen(ctk.CTkToplevel):
             row=0, column=1, sticky="w", padx=8)
         row += 1
 
-        # Separator
+
         ctk.CTkFrame(scroll, height=1, fg_color=("gray80", "gray30")).grid(
             row=row, column=0, sticky="ew", pady=12)
         row += 1
 
-        # ── Export section ─────────────────────────────────────────────────
+
         SectionLabel(scroll, loc.get("section_export", "Export")).grid(
             row=row, column=0, sticky="w", pady=(0, 8))
         row += 1
@@ -147,7 +147,7 @@ class SettingsScreen(ctk.CTkToplevel):
         self._pdf_combo.grid(row=row, column=0, sticky="ew", pady=4)
         row += 1
 
-        # ── Buttons ────────────────────────────────────────────────────────
+
         btn_row = ctk.CTkFrame(self, fg_color="transparent")
         btn_row.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 16))
         btn_row.grid_columnconfigure((0, 1), weight=1)
@@ -164,13 +164,13 @@ class SettingsScreen(ctk.CTkToplevel):
         ).grid(row=0, column=1, padx=(8, 0), sticky="ew")
 
     def _save(self) -> None:
-        # Theme
+
         label = self._theme_combo.get()
         if label in self._theme_display:
             key = self._theme_keys[self._theme_display.index(label)]
             apply_theme(key)
 
-        # Language
+
         lang_label = self._lang_combo.get()
         if lang_label in self._lang_display:
             lang_key = self._lang_keys[self._lang_display.index(lang_label)]

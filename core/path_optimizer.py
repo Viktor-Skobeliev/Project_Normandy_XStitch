@@ -61,7 +61,7 @@ def _snake_then_manhattan(
     if not positions:
         return []
 
-    # Group by row
+
     rows: Dict[int, List[int]] = {}
     for r, c in positions:
         rows.setdefault(r, []).append(c)

@@ -18,15 +18,15 @@ from utils.logger import get_logger
 
 log = get_logger(__name__)
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+
 
 def _get_model_path() -> str:
     """Absolute path to u2net.onnx — works as script and as frozen exe."""
     if getattr(sys, 'frozen', False):
-        # PyInstaller onedir: _MEIPASS == _internal/ directory
+
         base = sys._MEIPASS
     else:
-        # Running as .py script: project root is parent of core/
+
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base, 'models', 'u2net.onnx')
 
@@ -56,7 +56,7 @@ def _write_crash(title: str, exc_text: str) -> None:
         log.warning("Could not write crash report: %s", e)
 
 
-# ── ONNX Session (cached, thread-safe, CPU only) ──────────────────────────────
+
 
 _session = None
 _session_lock = threading.Lock()
@@ -76,7 +76,7 @@ def _get_onnx_session():
         model_path = _get_model_path()
         log.info("ONNX: model path = %s", model_path)
 
-        # ── Sanity checks ──────────────────────────────────────────────────
+
         if not os.path.isfile(model_path):
             msg = (f"Model file not found in /models/.\n"
                    f"Expected: {model_path}\n"
@@ -91,7 +91,7 @@ def _get_onnx_session():
             _write_crash("MODEL CORRUPTED", msg)
             raise RuntimeError(msg)
 
-        # ── Load session ───────────────────────────────────────────────────
+
         log.info("ONNX: loading InferenceSession (CPU only)...")
         t0 = time.perf_counter()
         try:
@@ -109,7 +109,7 @@ def _get_onnx_session():
                 providers=['CPUExecutionProvider'],
             )
 
-            # Log input/output info for debugging
+
             inp = _session.get_inputs()[0]
             out = _session.get_outputs()[0]
             log.info("ONNX: session ready in %.2fs | input='%s' %s | output='%s' %s",
@@ -124,7 +124,7 @@ def _get_onnx_session():
     return _session
 
 
-# ── u2net preprocessing / postprocessing ─────────────────────────────────────
+
 
 _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
 _STD  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
@@ -151,7 +151,7 @@ def _postprocess(ort_out: list, orig_wh: tuple) -> np.ndarray:
     return np.array(mask)
 
 
-# ── Core BG removal ───────────────────────────────────────────────────────────
+
 
 def _remove_background_direct(img_bgr: np.ndarray) -> np.ndarray:
     """
@@ -162,7 +162,7 @@ def _remove_background_direct(img_bgr: np.ndarray) -> np.ndarray:
     h, w = img_bgr.shape[:2]
     log.info("BG removal: input %dx%d px", w, h)
 
-    # Convert BGR -> PIL RGB
+
     pil_img = Image.fromarray(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB))
 
     log.info("BG removal: preprocessing...")
@@ -185,7 +185,7 @@ def _remove_background_direct(img_bgr: np.ndarray) -> np.ndarray:
     log.info("BG removal: mask range [%d, %d], unique values: %d",
              mask.min(), mask.max(), len(np.unique(mask)))
 
-    # Composite original BGR + mask -> BGRA
+
     bgra = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2BGRA)
     bgra[:, :, 3] = mask
     log.info("BG removal: BGRA composited, non-transparent px = %d", (mask > 10).sum())
@@ -193,7 +193,7 @@ def _remove_background_direct(img_bgr: np.ndarray) -> np.ndarray:
     return bgra
 
 
-# ── Morphological helpers ─────────────────────────────────────────────────────
+
 
 def _morph_cleanup(bgra: np.ndarray) -> np.ndarray:
     """Erode fringe pixels, dilate to restore shape, blur alpha edge."""
@@ -242,26 +242,26 @@ def _flatten_to_white(bgra: np.ndarray) -> np.ndarray:
         log.info("_flatten_to_white: PIL composite %dx%d px...", w, h)
         t = time.perf_counter()
 
-        # BGRA numpy -> RGBA PIL
+
         rgba_arr = cv2.cvtColor(bgra, cv2.COLOR_BGRA2RGBA)
         log.info("_flatten_to_white: BGRA->RGBA conversion OK, dtype=%s", rgba_arr.dtype)
 
         fg = Image.fromarray(rgba_arr, mode="RGBA")
         log.info("_flatten_to_white: fg PIL size=%s mode=%s", fg.size, fg.mode)
 
-        # Strict white RGBA background — NOT RGB
+
         bg = Image.new("RGBA", (w, h), (255, 255, 255, 255))
         log.info("_flatten_to_white: bg created size=%s mode=%s", bg.size, bg.mode)
 
-        # PIL alpha composite — handles edge cases correctly
+
         bg.alpha_composite(fg)
         log.info("_flatten_to_white: alpha_composite done")
 
-        # Explicit RGB conversion before any further processing
+
         final_img = bg.convert("RGB")
         log.info("_flatten_to_white: converted to RGB size=%s mode=%s", final_img.size, final_img.mode)
 
-        # Back to BGR numpy for the rest of the pipeline
+
         result = cv2.cvtColor(np.array(final_img), cv2.COLOR_RGB2BGR)
         log.info("_flatten_to_white: done in %.3fs — output shape %s dtype %s",
                  time.perf_counter() - t, result.shape, result.dtype)
@@ -274,7 +274,7 @@ def _flatten_to_white(bgra: np.ndarray) -> np.ndarray:
         raise
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+
 
 def auto_segment(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
     """
@@ -299,7 +299,7 @@ def auto_segment(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
 
     t_total = time.perf_counter()
     try:
-        # ── Step 3a: thumbnail input if too large (before inference) ──────────
+
         h, w = img.shape[:2]
         log.info("auto_segment [3a input]: %dx%d px", w, h)
         if max(h, w) > MAX_INPUT_PX:
@@ -314,19 +314,19 @@ def auto_segment(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
         else:
             log.info("auto_segment [3a thumbnail]: %dx%d within limit, no resize", w, h)
 
-        # ── Step 3b: u2net inference ──────────────────────────────────────────
+
         ctx.report_progress(3, "Removing background... (15-30s on CPU, please wait)")
         t = time.perf_counter()
         bgra = _remove_background_direct(img)
         log.info("auto_segment [3b inference]: %.2fs — BGRA shape %s", time.perf_counter()-t, bgra.shape)
 
-        # ── Step 3c: morphological cleanup ───────────────────────────────────
+
         ctx.report_progress(3, "Cleaning up edges...")
         t = time.perf_counter()
         bgra = _morph_cleanup(bgra)
         log.info("auto_segment [3c morph]: %.3fs", time.perf_counter() - t)
 
-        # ── Step 3d: crop + center ────────────────────────────────────────────
+
         ctx.report_progress(3, "Cropping to subject...")
         t = time.perf_counter()
         bgra = _crop_to_content(bgra)
@@ -334,7 +334,7 @@ def auto_segment(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
         log.info("auto_segment [3d crop+pad]: %.3fs — result %dx%d",
                  time.perf_counter() - t, bgra.shape[1], bgra.shape[0])
 
-        # ── Step 3e: save foreground mask BEFORE compositing ──────────────────
+
         alpha = bgra[:, :, 3]
         ctx.fg_mask = alpha > 10  # True=foreground stitch, False=background
         fg_px = int(ctx.fg_mask.sum())
@@ -343,7 +343,7 @@ def auto_segment(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
                  bgra.shape[1], bgra.shape[0], fg_px, total_px,
                  100.0 * fg_px / max(1, total_px))
 
-        # ── Step 3f: composite on white (PIL RGBA -> RGB) ─────────────────────
+
         ctx.report_progress(3, "Compositing on white background...")
         t = time.perf_counter()
         result = _flatten_to_white(bgra)

@@ -24,7 +24,7 @@ def resize_to_grid(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
     target_w = ctx.grid_width
     target_h = ctx.grid_height
 
-    # Fit inside target grid preserving aspect ratio
+
     scale = min(target_w / w, target_h / h)
     new_w = max(1, int(w * scale))
     new_h = max(1, int(h * scale))
@@ -32,7 +32,7 @@ def resize_to_grid(ctx: ProcessingContext, img: np.ndarray) -> np.ndarray:
     resized = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_NEAREST)
     log.info("Resize: %dx%d -> %dx%d stitches", w, h, new_w, new_h)
 
-    # Resize foreground mask to match the new grid dimensions
+
     if ctx.fg_mask is not None:
         mask_u8 = ctx.fg_mask.astype(np.uint8) * 255
         mask_resized = cv2.resize(mask_u8, (new_w, new_h), interpolation=cv2.INTER_NEAREST)
@@ -55,10 +55,10 @@ def quantize_colors(ctx: ProcessingContext, img: np.ndarray) -> tuple[np.ndarray
     ctx.report_progress(5, "Quantizing colors...")
     log.info("Quantize: input %dx%d, target ~%d colors", img.shape[1], img.shape[0], ctx.target_colors)
 
-    # ── Pre-quantization blur — clean up noise before clustering ──────────────
+
     smooth = cv2.GaussianBlur(img, (3, 3), sigmaX=0.8)
 
-    # ── Convert BGR -> LAB ────────────────────────────────────────────────────
+
     lab = cv2.cvtColor(smooth, cv2.COLOR_BGR2LAB).astype(np.float32)
     pixels = lab.reshape(-1, 3)
 
@@ -66,7 +66,7 @@ def quantize_colors(ctx: ProcessingContext, img: np.ndarray) -> tuple[np.ndarray
     n_colors = int(ctx.target_colors)
     n_colors = max(2, min(n_colors, 80))
 
-    # Use MiniBatchKMeans for large images (faster, similar quality)
+
     if n_pixels > 50_000:
         kmeans = MiniBatchKMeans(
             n_clusters=n_colors,
@@ -86,7 +86,7 @@ def quantize_colors(ctx: ProcessingContext, img: np.ndarray) -> tuple[np.ndarray
     labels = kmeans.fit_predict(pixels)
     centers_lab = kmeans.cluster_centers_  # (N, 3) in LAB
 
-    # Count unique colors actually used
+
     unique_labels = np.unique(labels)
     actual_colors = len(unique_labels)
     log.info("Quantize: %d colors -> %d actual clusters", n_colors, actual_colors)
@@ -98,7 +98,7 @@ def quantize_colors(ctx: ProcessingContext, img: np.ndarray) -> tuple[np.ndarray
         iterations=int(kmeans.n_iter_) if hasattr(kmeans, 'n_iter_') else 0,
     )
 
-    # ── Reconstruct quantized image ───────────────────────────────────────────
+
     quantized_lab = centers_lab[labels].reshape(img.shape).astype(np.uint8)
     quantized_bgr = cv2.cvtColor(quantized_lab, cv2.COLOR_LAB2BGR)
 
@@ -118,17 +118,17 @@ def apply_dithering(img: np.ndarray, palette_lab: np.ndarray) -> np.ndarray:
     for y in range(h):
         for x in range(w):
             old_pixel = lab[y, x].copy()
-            # Find nearest palette color
+
             diffs = palette_lab - old_pixel
             distances = np.sum(diffs ** 2, axis=1)
             nearest_idx = int(np.argmin(distances))
             new_pixel = palette_lab[nearest_idx]
             result_indices[y, x] = nearest_idx
 
-            # Quantization error
+
             error = old_pixel - new_pixel
 
-            # Diffuse error to neighbors (Floyd-Steinberg weights)
+
             if x + 1 < w:
                 lab[y, x + 1] += error * (7 / 16)
             if y + 1 < h:
@@ -138,6 +138,6 @@ def apply_dithering(img: np.ndarray, palette_lab: np.ndarray) -> np.ndarray:
                 if x + 1 < w:
                     lab[y + 1, x + 1] += error * (1 / 16)
 
-    # Reconstruct image
+
     dithered_lab = palette_lab[result_indices].reshape(h, w, 3).astype(np.uint8)
     return cv2.cvtColor(dithered_lab, cv2.COLOR_LAB2BGR)

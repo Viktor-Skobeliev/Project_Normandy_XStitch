@@ -29,7 +29,7 @@ def save_project(ctx: "ProcessingContext", filepath: str) -> None:
         filepath += ".xstitch"
 
     try:
-        # Serialize context without numpy arrays (stored separately)
+
         images = {
             "original": ctx.original_image,
             "repaired": ctx.repaired_image,
@@ -38,14 +38,14 @@ def save_project(ctx: "ProcessingContext", filepath: str) -> None:
             "quantized": ctx.quantized_image,
         }
 
-        # Temporarily detach images from context for clean JSON metadata
+
         ctx_dict = ctx.model_dump(
             exclude={"original_image", "repaired_image", "segmented_image",
                      "resized_image", "quantized_image", "progress_callbacks"}
         )
 
         with zipfile.ZipFile(filepath, "w", zipfile.ZIP_DEFLATED) as zf:
-            # Manifest
+
             manifest = {
                 "version": ctx.metadata.app_version,
                 "timestamp": ctx.metadata.timestamp,
@@ -53,11 +53,11 @@ def save_project(ctx: "ProcessingContext", filepath: str) -> None:
             }
             zf.writestr(_MANIFEST_NAME, json.dumps(manifest, indent=2, ensure_ascii=False))
 
-            # Context metadata (JSON-serializable parts)
+
             zf.writestr("metadata.json", json.dumps(ctx_dict, indent=2,
                                                      ensure_ascii=False, default=str))
 
-            # Images as numpy .npy files
+
             for name, arr in images.items():
                 if arr is not None:
                     import io

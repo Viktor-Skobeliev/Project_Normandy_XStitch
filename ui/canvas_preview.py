@@ -36,7 +36,7 @@ class CanvasPreview(ctk.CTkFrame):
         self._canvas = ctk.CTkCanvas(self, bg="#1a1a2e", highlightthickness=0)
         self._canvas.grid(row=0, column=0, sticky="nsew")
 
-        # Scrollbars
+
         self._hbar = ctk.CTkScrollbar(self, orientation="horizontal",
                                        command=self._canvas.xview)
         self._hbar.grid(row=1, column=0, sticky="ew")
@@ -51,7 +51,7 @@ class CanvasPreview(ctk.CTkFrame):
         self._canvas.bind("<MouseWheel>", self._on_mousewheel)
         self._canvas.bind("<Control-MouseWheel>", self._on_zoom)
 
-        # State
+
         self._stitch_matrix: Optional[List[List[int]]] = None
         self._symbol_map: Optional[Dict[int, str]] = None
         self._color_id_map: Optional[Dict[int, ThreadColor]] = None
@@ -59,7 +59,7 @@ class CanvasPreview(ctk.CTkFrame):
         self._zoom: float = 1.0
         self._photo = None  # keep reference to prevent GC
 
-    # ── Public API ────────────────────────────────────────────────────────────
+
 
     def set_data(
         self,
@@ -87,7 +87,7 @@ class CanvasPreview(ctk.CTkFrame):
         self._canvas.delete("all")
         self._stitch_matrix = None
 
-    # ── Rendering ─────────────────────────────────────────────────────────────
+
 
     def _render(self) -> None:
         if not self._stitch_matrix:
@@ -104,7 +104,7 @@ class CanvasPreview(ctk.CTkFrame):
         img = Image.new("RGB", (img_w, img_h), BG_COLOR)
         draw = ImageDraw.Draw(img)
 
-        # Try to load a small monospace font
+
         try:
             font_size = max(4, cell - 2)
             font = ImageFont.truetype("cour.ttf", font_size)
@@ -118,7 +118,7 @@ class CanvasPreview(ctk.CTkFrame):
                 x0 = col_idx * cell
                 x1 = x0 + cell
 
-                # color_id=0 → background cell (no stitch, no symbol)
+
                 if color_id == 0:
                     draw.rectangle([x0, y0, x1 - 1, y1 - 1], fill=BG_COLOR)
                     if cell >= 4:
@@ -126,7 +126,7 @@ class CanvasPreview(ctk.CTkFrame):
                                        outline=GRID_COLOR, width=1)
                     continue
 
-                # Fill cell
+
                 if self._mode in ("color", "grid"):
                     thread = (self._color_id_map or {}).get(color_id)
                     if thread:
@@ -139,19 +139,19 @@ class CanvasPreview(ctk.CTkFrame):
 
                 draw.rectangle([x0, y0, x1 - 1, y1 - 1], fill=fill)
 
-                # Grid line
+
                 if cell >= 4:
                     draw.rectangle([x0, y0, x1 - 1, y1 - 1],
                                    outline=GRID_COLOR, width=1)
 
-                # Symbol
+
                 if self._mode in ("color", "symbol") and cell >= 6:
                     sym = (self._symbol_map or {}).get(color_id, "")
                     if sym:
                         text_color = TEXT_COLOR if self._mode == "symbol" else _contrast_color(fill)
                         draw.text((x0 + 1, y0 + 1), sym, fill=text_color, font=font)
 
-        # Ruler marks every 10 stitches
+
         if cell >= 4:
             for i in range(0, w, RULER_INTERVAL):
                 x = i * cell
@@ -160,14 +160,14 @@ class CanvasPreview(ctk.CTkFrame):
                 y = i * cell
                 draw.text((0, y + 1), str(i), fill=(100, 100, 100), font=font)
 
-        # Display on canvas
+
         from PIL import ImageTk
         self._photo = ImageTk.PhotoImage(img)
         self._canvas.delete("all")
         self._canvas.create_image(0, 0, anchor="nw", image=self._photo)
         self._canvas.configure(scrollregion=(0, 0, img_w, img_h))
 
-    # ── Events ────────────────────────────────────────────────────────────────
+
 
     def _on_mousewheel(self, event) -> None:
         self._canvas.yview_scroll(-1 * (event.delta // 120), "units")
