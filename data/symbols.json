@@ -1,0 +1,255 @@
+{
+  "symbols": [
+    {
+      "id": 1,
+      "char": "A",
+      "category": "letter"
+    },
+    {
+      "id": 2,
+      "char": "B",
+      "category": "letter"
+    },
+    {
+      "id": 3,
+      "char": "C",
+      "category": "letter"
+    },
+    {
+      "id": 4,
+      "char": "D",
+      "category": "letter"
+    },
+    {
+      "id": 5,
+      "char": "E",
+      "category": "letter"
+    },
+    {
+      "id": 6,
+      "char": "F",
+      "category": "letter"
+    },
+    {
+      "id": 7,
+      "char": "G",
+      "category": "letter"
+    },
+    {
+      "id": 8,
+      "char": "H",
+      "category": "letter"
+    },
+    {
+      "id": 9,
+      "char": "J",
+      "category": "letter"
+    },
+    {
+      "id": 10,
+      "char": "K",
+      "category": "letter"
+    },
+    {
+      "id": 11,
+      "char": "L",
+      "category": "letter"
+    },
+    {
+      "id": 12,
+      "char": "M",
+      "category": "letter"
+    },
+    {
+      "id": 13,
+      "char": "N",
+      "category": "letter"
+    },
+    {
+      "id": 14,
+      "char": "P",
+      "category": "letter"
+    },
+    {
+      "id": 15,
+      "char": "Q",
+      "category": "letter"
+    },
+    {
+      "id": 16,
+      "char": "R",
+      "category": "letter"
+    },
+    {
+      "id": 17,
+      "char": "T",
+      "category": "letter"
+    },
+    {
+      "id": 18,
+      "char": "U",
+      "category": "letter"
+    },
+    {
+      "id": 19,
+      "char": "V",
+      "category": "letter"
+    },
+    {
+      "id": 20,
+      "char": "W",
+      "category": "letter"
+    },
+    {
+      "id": 21,
+      "char": "X",
+      "category": "letter"
+    },
+    {
+      "id": 22,
+      "char": "Y",
+      "category": "letter"
+    },
+    {
+      "id": 23,
+      "char": "3",
+      "category": "digit"
+    },
+    {
+      "id": 24,
+      "char": "4",
+      "category": "digit"
+    },
+    {
+      "id": 25,
+      "char": "6",
+      "category": "digit"
+    },
+    {
+      "id": 26,
+      "char": "7",
+      "category": "digit"
+    },
+    {
+      "id": 27,
+      "char": "8",
+      "category": "digit"
+    },
+    {
+      "id": 28,
+      "char": "9",
+      "category": "digit"
+    },
+    {
+      "id": 29,
+      "char": "+",
+      "category": "special"
+    },
+    {
+      "id": 30,
+      "char": "#",
+      "category": "special"
+    },
+    {
+      "id": 31,
+      "char": "@",
+      "category": "special"
+    },
+    {
+      "id": 32,
+      "char": "%",
+      "category": "special"
+    },
+    {
+      "id": 33,
+      "char": "&",
+      "category": "special"
+    },
+    {
+      "id": 34,
+      "char": "*",
+      "category": "special"
+    },
+    {
+      "id": 35,
+      "char": "=",
+      "category": "special"
+    },
+    {
+      "id": 36,
+      "char": "~",
+      "category": "special"
+    },
+    {
+      "id": 37,
+      "char": "^",
+      "category": "special"
+    },
+    {
+      "id": 38,
+      "char": ">",
+      "category": "special"
+    },
+    {
+      "id": 39,
+      "char": "<",
+      "category": "special"
+    },
+    {
+      "id": 40,
+      "char": "!",
+      "category": "special"
+    },
+    {
+      "id": 41,
+      "char": "?",
+      "category": "special"
+    },
+    {
+      "id": 42,
+      "char": "$",
+      "category": "special"
+    },
+    {
+      "id": 43,
+      "char": "/",
+      "category": "special"
+    },
+    {
+      "id": 44,
+      "char": "\\",
+      "category": "special"
+    },
+    {
+      "id": 45,
+      "char": "|",
+      "category": "special"
+    },
+    {
+      "id": 46,
+      "char": "-",
+      "category": "special"
+    },
+    {
+      "id": 47,
+      "char": ":",
+      "category": "special"
+    },
+    {
+      "id": 48,
+      "char": ";",
+      "category": "special"
+    },
+    {
+      "id": 49,
+      "char": ".",
+      "category": "special"
+    },
+    {
+      "id": 50,
+      "char": ",",
+      "category": "special"
+    }
+  ],
+  "notes": "Excludes visually similar pairs: O/0, I/l/1, S/5, Z/2, X/x. Safe for B&W printing at 3mm grid cells."
+}
