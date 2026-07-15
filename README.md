@@ -1,39 +1,64 @@
-Project Normandy (Alpha)
-A Python-based orchestrator for cross-stitch pattern generation, featuring automated image segmentation and color quantization.
+# Project Normandy (Alpha)
 
-Core Features
-Multi-Agent AI Audit: A dual-stage pipeline featuring DataCritic and VisionAnalyst (running on Meta-Llama-3.1-8B).
-DataCritic: Performs numerical anomaly detection, flagging thread overestimation or underestimation based on usage ratios.
-VisionAnalyst: Processes image metrics (edge density, foreground coverage, brightness) to provide a final verdict and a human-readable pattern summary.
-Intelligent Thread Optimization: Dynamic Scale Factor adjustment and automatic removal of "low-value" colors (<1m) to optimize the shopping list.
+A Python orchestration engine that turns a photo into a production-ready cross-stitch pattern:
+neural segmentation, colour quantization, thread math and a PDF schematic — with a two-agent audit
+layer that reviews the result before it ships.
 
-Visual Metrics Extraction: Custom PIL-based engine to calculate:
-Edge Density: Identifying geometric vs. painterly patterns.
+`Python` · `OpenCV / Pillow` · `MobileSAM + U2Net` · `ONNX Runtime (GPU)` · `Llama 3.1 8B (local)` ·
+`Qwen2-VL` · `CustomTkinter`
 
-Foreground Coverage: Precise calculation of active stitching areas.
+---
 
-Color Complexity: Unique RGB packed-pixel analysis.
+## Multi-Agent AI Audit
 
-DMC Hardware Mapping: Automated conversion of image data into real-world DMC thread codes with skein-count estimation.
+A dual-stage pipeline that reviews every generated pattern, running on a local Meta-Llama-3.1-8B —
+no data leaves the machine.
 
-DMC Integration: Precise color mapping using internal JSON palettes for authentic cross-stitch results.
+| Agent | Input | Job |
+|-------|-------|-----|
+| **DataCritic** | Numerical pattern data | Anomaly detection — flags thread over- or underestimation from usage ratios |
+| **VisionAnalyst** | Image metrics | Final verdict plus a human-readable pattern summary |
 
-Color Processing: Maps image colors to the DMC thread palette (see data/ for configs).
+The pair produces a verdict and a PDF summary, so a bad pattern is caught before it reaches the
+user rather than after.
 
-Pattern Export: Generates PDF schematics with symbolic grids.
+## Visual Metrics Extraction
 
-Installation
-Clone the repository:
+A custom PIL-based engine computes the metrics the audit runs on:
+
+- **Edge density** — separates geometric patterns from painterly ones
+- **Foreground coverage** — precise area actually being stitched
+- **Brightness and colour complexity** — packed-pixel RGB analysis
+
+## Thread Optimization
+
+- Dynamic scale-factor adjustment
+- Automatic removal of low-value colours (under 1 m) to keep the shopping list practical
+
+## DMC Mapping and Export
+
+- Image colours mapped to the real DMC thread palette using internal JSON palettes (see `data/`)
+- Skein-count estimation for a usable shopping list
+- PDF schematics with symbolic grids
+
+---
+
+## Installation
+
+```bash
 git clone https://github.com/Viktor-Skobeliev/Project_Normandy_XStitch.git
 cd Project_Normandy_XStitch
-
-Install dependencies:
 pip install -r requirements.txt
+```
 
-Download Models:
-The models/ folder is empty by default. You must run the following script to download the required weights (Llama 3.1, Qwen2-VL, MobileSAM, and U2Net):
+The `models/` folder ships empty. Download the weights (Llama 3.1, Qwen2-VL, MobileSAM, U2Net):
+
+```bash
 python download_models.py
+```
 
-Usage
-Run the main application:
+## Usage
+
+```bash
 python main.py
+```
