@@ -24,3 +24,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+
+# Local working files, not part of the project
+HANDOVER.md
+retouch_personal.py
+sunnary_xstich_project.*
+
